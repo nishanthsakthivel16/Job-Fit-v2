@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.pyc
+
+# Virtual environment
+.venv/
+
+# Data files
+data/raw/
+data/interim/
+
+# Large data not needed in repo
+data/processed/
+models/embeddings/
+models/trained/
+notebook/figures/
+
+# OS / VS Code
+.DS_Store
+.vscode/

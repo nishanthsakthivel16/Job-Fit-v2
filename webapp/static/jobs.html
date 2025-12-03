@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AI-powered job search with semantic matching. Find jobs that match your skills and experience.">
+    <title>Job Search - Jobfit</title>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="container nav-container">
+            <a href="/" class="nav-logo">JOBFIT</a>
+            <ul class="nav-links">
+                <li><a href="jobs.html" class="nav-link active">Job Search</a></li>
+                <li><a href="cvreview.html" class="nav-link">CV Review</a></li>
+                <li><a href="trends.html" class="nav-link">Trends</a></li>
+                <li><a href="dataops.html" class="nav-link">Data Ops</a></li>
+                <li><a href="mlops.html" class="nav-link">ML Ops</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <section class="hero" style="min-height: 40vh; padding-top: 120px; padding-bottom: 60px;">
+        <div class="hero-grid"></div>
+        <div class="container">
+            <div class="hero-content" style="grid-template-columns: 1fr; text-align: center;">
+                <div class="hero-text">
+                    <h1 class="hero-title" style="margin-bottom: 1.5rem;">
+                        Find Your <span class="hero-title-gradient">Perfect Job</span>
+                    </h1>
+                    <p class="hero-description" style="margin: 0 auto 2rem; max-width: 700px;">
+                        Search by keywords or upload your CV for semantic matching. Our AI finds jobs that truly fit your skills and experience.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Search Section -->
+    <section class="features" style="padding-top: 3rem;">
+        <div class="container">
+            <!-- Search Tabs -->
+            <div style="display: flex; gap: 1rem; justify-content: center; margin-bottom: 2rem; flex-wrap: wrap;">
+                <button class="btn btn-primary" onclick="showTab('keyword')" id="keywordTab">
+                    <span class="material-icons" style="font-size: 1.25rem;">search</span>
+                    <span>Keyword Search</span>
+                </button>
+                <button class="btn btn-outline" onclick="showTab('cv')" id="cvTab">
+                    <span class="material-icons" style="font-size: 1.25rem;">upload_file</span>
+                    <span>Semantic CV Search</span>
+                </button>
+            </div>
+
+            <!-- Keyword Search Tab -->
+            <div id="keywordSearchTab" class="search-tab">
+                <div style="max-width: 800px; margin: 0 auto 3rem; padding: 2rem; background: white; border-radius: 1rem; box-shadow: 0 10px 40px rgba(0,0,0,0.1);">
+                    <form onsubmit="event.preventDefault(); searchJobs();">
+                        <div style="display: grid; gap: 1.5rem; margin-bottom: 1.5rem;">
+                            <div>
+                                <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: var(--color-charcoal);">Job Title or Keywords</label>
+                                <input type="text" id="keywords" placeholder="e.g., Senior Python Developer, Machine Learning Engineer"
+                                       style="width: 100%; padding: 1rem; border: 2px solid var(--color-cloud); border-radius: 0.5rem; font-size: 1rem; transition: all 0.3s;">
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                <div>
+                                    <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: var(--color-charcoal);">Location</label>
+                                    <input type="text" id="location" placeholder="e.g., London, Remote"
+                                           style="width: 100%; padding: 1rem; border: 2px solid var(--color-cloud); border-radius: 0.5rem; font-size: 1rem;">
+                                </div>
+                                <div>
+                                    <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: var(--color-charcoal);">Skills</label>
+                                    <input type="text" id="skills" placeholder="e.g., Python, Django, AWS"
+                                           style="width: 100%; padding: 1rem; border: 2px solid var(--color-cloud); border-radius: 0.5rem; font-size: 1rem;">
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; font-size: 1.125rem;" id="keywordSearchBtn">
+                            <span class="material-icons">search</span>
+                            <span>Search Jobs</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- CV Upload Tab -->
+            <div id="cvSearchTab" class="search-tab" style="display: none;">
+                <div style="max-width: 600px; margin: 0 auto 3rem; padding: 3rem; background: white; border-radius: 1rem; box-shadow: 0 10px 40px rgba(0,0,0,0.1); text-align: center;">
+                    <div id="drop-zone" style="border: 3px dashed var(--color-cloud); border-radius: 1rem; padding: 3rem; transition: all 0.3s; cursor: pointer;"
+                         onclick="document.getElementById('cvFile').click();">
+                        <div class="material-icons" style="font-size: 5rem; color: var(--color-cosmic-purple); margin-bottom: 1rem;">cloud_upload</div>
+                        <h3 style="margin-bottom: 0.5rem;">Upload Your CV</h3>
+                        <p style="color: var(--color-graphite); margin-bottom: 1.5rem;">Drag and drop or click to browse</p>
+                        <p id="fileName" style="font-weight: 600; color: var(--color-cosmic-purple);"></p>
+                        <p style="font-size: 0.875rem; color: var(--color-silver);">Supported formats: PDF, DOCX (Max 5MB)</p>
+                        <input type="file" id="cvFile" accept=".pdf,.docx" style="display: none;" onchange="handleFileSelect(this.files)">
+                    </div>
+                    <button class="btn btn-primary" style="width: 100%; margin-top: 1.5rem; justify-content: center;" onclick="uploadCV()" id="cvUploadBtn">
+                        <span class="material-icons">upload_file</span>
+                        <span>Find Semantic Matches</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div id="resultsSection" style="display: none;">
+                <div style="margin-bottom: 2rem; text-align: center;">
+                    <h2 class="section-title" style="margin-bottom: 0.5rem;">Job Matches</h2>
+                    <p class="section-description" id="resultsCount"></p>
+                </div>
+
+                <!-- Job Cards Container -->
+                <div id="job-cards-container" style="display: grid; gap: 1.5rem; max-width: 1000px; margin: 0 auto;">
+                    <!-- Job cards will be dynamically inserted here -->
+                </div>
+                
+                <!-- Pagination Container -->
+                <div id="pagination-container" style="display: flex; justify-content: center; gap: 1rem; margin-top: 3rem;">
+                    <!-- Pagination buttons will be dynamically inserted here -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer" style="margin-top: 4rem;">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <h3>JOBFIT</h3>
+                    <p>Next-generation AI career platform.<br>Powered by advanced machine learning.</p>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Features</h4>
+                    <ul class="footer-links">
+                        <li><a href="jobs.html">Job Search</a></li>
+                        <li><a href="cvreview.html">CV Review</a></li>
+                        <li><a href="trends.html">Job Trends</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Operations</h4>
+                    <ul class="footer-links">
+                        <li><a href="dataops.html">Data Operations Hub</a></li>
+                        <li><a href="mlops.html">AI/ML Operations Hub</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Resources</h4>
+                    <ul class="footer-links">
+                        <li><a href="/">Home</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Jobfit. All rights reserved. Built with advanced machine learning.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // --- STATE MANAGEMENT ---
+        let currentPage = 1;
+        const pageSize = 10;
+        let currentSearchType = 'keyword'; // 'keyword' or 'semantic'
+        let currentQuery = {}; // Stores the parameters of the last search
+        let currentFile = null;
+        let lastCvText = null;
+        const CV_STORAGE_KEY = 'jobfitCvFromReview';
+        const CV_TRANSFER_TTL_MS = 10 * 60 * 1000; // 10 minutes
+
+        // --- UI TAB SWITCHING ---
+        function showTab(tab) {
+            const keywordTab = document.getElementById('keywordSearchTab');
+            const cvTab = document.getElementById('cvSearchTab');
+            const keywordBtn = document.getElementById('keywordTab');
+            const cvBtn = document.getElementById('cvTab');
+            
+            currentSearchType = tab;
+
+            if (tab === 'keyword') {
+                keywordTab.style.display = 'block';
+                cvTab.style.display = 'none';
+                keywordBtn.className = 'btn btn-primary';
+                cvBtn.className = 'btn btn-outline';
+            } else {
+                keywordTab.style.display = 'none';
+                cvTab.style.display = 'block';
+                keywordBtn.className = 'btn btn-outline';
+                cvBtn.className = 'btn btn-primary';
+            }
+        }
+        
+        // --- DRAG AND DROP ---
+        const dropZone = document.getElementById('drop-zone');
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = 'var(--color-cosmic-purple)';
+            dropZone.style.background = 'rgba(102,126,234,0.05)';
+        });
+
+        dropZone.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = 'var(--color-cloud)';
+            dropZone.style.background = 'transparent';
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = 'var(--color-cloud)';
+            dropZone.style.background = 'transparent';
+            handleFileSelect(e.dataTransfer.files);
+        });
+
+        function handleFileSelect(files) {
+            if (files.length > 0) {
+                currentFile = files[0];
+                document.getElementById('fileName').textContent = currentFile.name;
+            }
+        }
+
+        // --- API CALLS & RENDERING ---
+        
+        function setLoadingState(button, isLoading) {
+            const span = button.querySelector('span:last-child');
+            if (isLoading) {
+                button.disabled = true;
+                span.textContent = 'Searching...';
+            } else {
+                button.disabled = false;
+                span.textContent = currentSearchType === 'keyword' ? 'Search Jobs' : 'Find Semantic Matches';
+            }
+        }
+
+        async function searchJobs(page = 1) {
+            currentPage = page;
+            const keywords = document.getElementById('keywords').value;
+            const location = document.getElementById('location').value;
+            const skills = document.getElementById('skills').value;
+            
+            currentQuery = { keywords, location, skills };
+            
+            const url = `/api/search/keyword?page=${currentPage}&page_size=${pageSize}&keywords=${encodeURIComponent(keywords)}&location=${encodeURIComponent(location)}&skills=${encodeURIComponent(skills)}`;
+            
+            const searchBtn = document.getElementById('keywordSearchBtn');
+            setLoadingState(searchBtn, true);
+
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                const data = await response.json();
+                renderResults(data, 'keyword');
+            } catch (error) {
+                console.error('Keyword search failed:', error);
+                renderError('Failed to fetch job results. Please try again later.');
+            } finally {
+                setLoadingState(searchBtn, false);
+            }
+        }
+
+        async function uploadCV(page = 1) {
+            currentPage = page;
+            if (!currentFile) {
+                alert('Please select a CV file first.');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('file', currentFile);
+            
+            const url = `/api/search/semantic?page=${currentPage}&page_size=${pageSize}`;
+            
+            const uploadBtn = document.getElementById('cvUploadBtn');
+            setLoadingState(uploadBtn, true);
+
+            try {
+                const response = await fetch(url, { method: 'POST', body: formData });
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                const data = await response.json();
+                lastCvText = null;
+                renderResults(data, 'semantic');
+            } catch (error) {
+                console.error('Semantic search failed:', error);
+                renderError('Failed to process CV. Please try again later.');
+            } finally {
+                setLoadingState(uploadBtn, false);
+            }
+        }
+
+        async function semanticSearchWithText(cvText, page = 1) {
+            currentPage = page;
+            lastCvText = cvText;
+            currentSearchType = 'semantic';
+
+            const uploadBtn = document.getElementById('cvUploadBtn');
+            setLoadingState(uploadBtn, true);
+
+            try {
+                const response = await fetch(`/api/search/semantic/text?page=${currentPage}&page_size=${pageSize}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ cv_text: cvText })
+                });
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                const data = await response.json();
+                renderResults(data, 'semantic');
+            } catch (error) {
+                console.error('Semantic search failed:', error);
+                renderError(error.message || 'Failed to process CV details. Please try again later.');
+            } finally {
+                setLoadingState(uploadBtn, false);
+            }
+        }
+
+        function renderResults(data, searchType) {
+            const resultsSection = document.getElementById('resultsSection');
+            const resultsCountEl = document.getElementById('resultsCount');
+            const cardsContainer = document.getElementById('job-cards-container');
+            
+            cardsContainer.innerHTML = ''; // Clear previous results
+            
+            if (data.results && data.results.length > 0) {
+                const count = data.total_results;
+                resultsCountEl.textContent = `Found ${count} matching position${count > 1 ? 's' : ''}${searchType === 'semantic' ? ' for your CV' : ''}.`;
+                data.results.forEach(job => {
+                    cardsContainer.innerHTML += createJobCard(job);
+                });
+                renderPagination(data.total_results);
+            } else {
+                resultsCountEl.textContent = 'No matching jobs found.';
+                document.getElementById('pagination-container').innerHTML = '';
+            }
+            
+            resultsSection.style.display = 'block';
+            if (currentPage === 1) {
+                resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+        
+        function renderError(message) {
+            const resultsSection = document.getElementById('resultsSection');
+            const resultsCountEl = document.getElementById('resultsCount');
+            const cardsContainer = document.getElementById('job-cards-container');
+            cardsContainer.innerHTML = '';
+            document.getElementById('pagination-container').innerHTML = '';
+            resultsCountEl.textContent = message;
+            resultsSection.style.display = 'block';
+        }
+
+        function createJobCard(job) {
+            const salary = (job.salary_min && job.salary_max) ? `£${job.salary_min.toLocaleString()} - £${job.salary_max.toLocaleString()}` : 'Not specified';
+            const location = job.location_display || 'Not specified';
+            const description = job.description ? job.description.substring(0, 200) + '...' : 'No description available.';
+            const matchScore = job.match_score ? `<div style="background: linear-gradient(135deg, #00B894, #00D2D3); color: white; padding: 0.5rem 1rem; border-radius: 2rem; font-weight: 700; font-size: 1.125rem;">${job.match_score}% Match</div>` : '';
+
+            return `
+                <div class="feature-card" style="padding: 2rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                        <div>
+                            <h3 class="feature-title" style="margin-bottom: 0.5rem; font-size: 1.5rem;">${job.title || 'No Title'}</h3>
+                            <p style="color: var(--color-graphite); margin-bottom: 0.5rem;">${job.company || 'No Company'} • ${location}</p>
+                            <p style="color: var(--color-silver); font-size: 0.875rem;">Posted ${job.job_age_days || 'N/A'} days ago</p>
+                        </div>
+                        ${matchScore}
+                    </div>
+                    <p style="color: var(--color-graphite); margin-bottom: 1rem; line-height: 1.6;">${description}</p>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem;">
+                        <div>
+                            <p style="margin: 0; color: var(--color-graphite); font-weight: 600;">${salary}</p>
+                            <p style="margin: 0; color: var(--color-silver); font-size: 0.875rem;">${job.contract_time || 'N/A'}</p>
+                        </div>
+                        <a href="${job.redirect_url}" target="_blank" class="btn btn-primary">View Original</a>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function renderPagination(totalResults) {
+            const paginationContainer = document.getElementById('pagination-container');
+            paginationContainer.innerHTML = '';
+            
+            try {
+                const totalPages = Math.ceil(totalResults / pageSize);
+                if (totalPages <= 1) return;
+
+                // Previous button
+                if (currentPage > 1) {
+                    paginationContainer.innerHTML += `<button class="btn btn-outline" onclick="changePage(${currentPage - 1})">Previous</button>`;
+                }
+
+                // Page numbers (simplified)
+                paginationContainer.innerHTML += `<div style="padding: 0.5rem 1rem; align-self: center;">Page ${currentPage} of ${totalPages}</div>`;
+
+                // Next button
+                if (currentPage < totalPages) {
+                    paginationContainer.innerHTML += `<button class="btn btn-outline" onclick="changePage(${currentPage + 1})">Next</button>`;
+                }
+            } catch (error) {
+                console.error("Error rendering pagination:", error);
+                paginationContainer.innerHTML = "<p style='color: red;'>Error rendering pagination. See console for details.</p>";
+            }
+        }
+        
+        function changePage(page) {
+            if (currentSearchType === 'keyword') {
+                searchJobs(page);
+            } else if (lastCvText) {
+                semanticSearchWithText(lastCvText, page);
+            } else {
+                uploadCV(page);
+            }
+            window.scrollTo({ top: document.getElementById('resultsSection').offsetTop, behavior: 'smooth' });
+        }
+
+        function autoRunCvSearchIfAvailable() {
+            const stored = sessionStorage.getItem(CV_STORAGE_KEY);
+            if (!stored) {
+                return;
+            }
+
+            sessionStorage.removeItem(CV_STORAGE_KEY);
+
+            let parsed;
+            try {
+                parsed = JSON.parse(stored);
+            } catch (error) {
+                console.warn('Invalid CV payload in storage', error);
+                return;
+            }
+
+            if (!parsed || !parsed.cv_text) {
+                return;
+            }
+
+            if (parsed.timestamp && Date.now() - parsed.timestamp > CV_TRANSFER_TTL_MS) {
+                console.warn('Stored CV payload expired');
+                return;
+            }
+
+            showTab('cv');
+            const fileNameLabel = document.getElementById('fileName');
+            if (fileNameLabel) {
+                fileNameLabel.textContent = 'Using CV from CV Review';
+            }
+
+            semanticSearchWithText(parsed.cv_text);
+        }
+
+        autoRunCvSearchIfAvailable();
+    </script>
+</body>
+</html>

@@ -1,0 +1,70 @@
+============= DETAILED DATA & MODEL REPORT =============
+
+1. RAW DATA COLLECTION
+• Sources: Adzuna REST API + RemoteOK public API.
+• Approx. requests: batched multi-page collection with rate-limit handling.
+• Total raw job records (before cleaning): ~16,964 rows across 29 columns.
+• Source distribution: adzuna: 16924, remoteok: 40
+
+2. DATA CLEANING & CONSOLIDATION
+• Removed duplicate job postings based on job ID + title + company.
+• Unified schema between Adzuna and RemoteOK (title, company, salary, location, URL, description…).
+• Converted salary fields to numeric float types (salary_min, salary_max).
+• Parsed created_date to datetime and derived job_age_days (recency of posting).
+• Filled missing descriptions with 'No description available'.
+• Normalised location fields (country, region, city) where present.
+• Countries (top 5 by job_count): Other / Unknown: 11964, UK: 5000
+
+3. FEATURE ENGINEERING
+• job_age_days: number of days since the job was posted.
+• Normalised salary range: salary_min / salary_max for downstream analysis.
+• Category fields harmonised (category_tag, category_label) to group job families.
+• Combined text fields used for language model input (title + company + category).
+
+4. EMBEDDING MODEL (PRE-TRAINED TRANSFORMER)
+• Model: SentenceTransformer 'all-mpnet-base-v2' (768-dimensional embeddings).
+• Rationale:
+    - Captures semantic similarity between job descriptions and CV text.
+    - Pretrained on large generic corpora → good generalisation without training from scratch.
+• Generated three main embedding views:
+    - embedding_full: full job description-level vector.
+    - embedding_title_company: compact semantic representation of role + employer.
+    - embedding_category_title: clusters jobs by discipline/domain.
+
+5. CUSTOM CLUSTERING MODEL (TRAINED IN THIS PROJECT)
+• Algorithm: KMeans clustering on embedding_full (unsupervised).
+• Number of clusters (k): 20 (empirically chosen to balance granularity vs interpretability).
+• Training dataset: ~16–17k unique job postings with 768-dimensional vectors.
+• Objective: group semantically similar roles into latent job families.
+• Benefits:
+    - Compresses large job space into a manageable number of career clusters.
+    - Allows fast retrieval: predict cluster for a CV, then only compare against jobs in that cluster.
+
+6. JOB RECOMMENDATION PIPELINE
+• Step 1 – CV ingestion: extract text from PDF/DOCX and normalise.
+• Step 2 – CV embedding: encode CV text with the same SentenceTransformer model.
+• Step 3 – Cluster assignment: predict the closest KMeans cluster for the CV.
+• Step 4 – In-cluster retrieval:
+    - Filter jobs to the assigned cluster.
+    - Compute cosine similarity between CV embedding and job embeddings.
+    - Rank jobs by similarity score and return top-N recommendations.
+• Step 5 – FastAPI endpoint /api/recommend exposes this as an online service.
+
+7. WHY THIS APPROACH (JUSTIFICATION)
+• Using a pre-trained transformer for embeddings:
+    - Avoids the cost and data requirements of training a language model from scratch.
+    - Provides rich semantic understanding of CV and job text.
+• Training our own KMeans model on our collected job data:
+    - Makes the system custom to our domain (real job market data from Adzuna + RemoteOK).
+    - Demonstrates a full end-to-end ML pipeline: collection → cleaning → embeddings → clustering → API.
+    - More explainable than deep black-box recommenders: each cluster corresponds to a latent job family.
+
+8. DEPLOYMENT & MLOPS
+• Backend: FastAPI app exposing keyword search, semantic search, CV review, and /api/recommend.
+• Data layer: Parquet datasets for raw, interim, and processed job data.
+• Model artefacts: KMeans model (.pkl) + clustered jobs (.parquet) stored under models/trained/.
+• Monitoring:
+    - Search history and CV analysis history logged as JSONL → displayed on the ML Ops dashboard.
+    - Collection metrics track API calls, jobs collected, and runtime per collection run.
+
+========================================================

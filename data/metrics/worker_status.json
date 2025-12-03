@@ -1,0 +1,27 @@
+{
+  "collection": {
+    "status": "IDLE",
+    "updated_at": "2025-12-03T00:52:08.473358",
+    "details": {
+      "last_run": "2025-12-03T00:50:27.633216",
+      "jobs_collected": 4950,
+      "jobs_deduplicated": 4950
+    }
+  },
+  "processing": {
+    "status": "IDLE",
+    "updated_at": "2025-12-03T00:52:21.940914",
+    "details": {
+      "last_run": "2025-12-03T00:52:21.606053",
+      "records_out": 16964
+    }
+  },
+  "embedding": {
+    "status": "IDLE",
+    "updated_at": "2025-12-03T01:07:08.758731",
+    "details": {
+      "last_run": "2025-12-03T01:07:08.757751",
+      "jobs_processed": 16964
+    }
+  }
+}

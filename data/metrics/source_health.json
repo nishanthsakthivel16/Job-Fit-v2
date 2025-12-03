@@ -1,0 +1,27 @@
+{
+  "Adzuna": {
+    "status": "ONLINE",
+    "last_check": "2025-12-03T00:52:08.473186",
+    "response_time_ms": 503.87017499999996,
+    "rate_limit_used": 200,
+    "rate_limit_total": 1000,
+    "details": {
+      "last_parameters": {}
+    }
+  },
+  "RemoteOK": {
+    "status": "ONLINE",
+    "last_check": "2025-12-03T00:41:02.555291",
+    "response_time_ms": 131.61800000000002,
+    "rate_limit_used": null,
+    "rate_limit_total": null,
+    "details": {
+      "filter_tags": [
+        "python",
+        "react",
+        "javascript",
+        "engineer"
+      ]
+    }
+  }
+}
